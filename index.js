@@ -16,11 +16,36 @@ const mongoConnectionURL =
 mongoose.connect(mongoConnectionURL);
 
 //API creation
-
 app.get("/", (req, res) => {
   res.send("Express App is running");
 });
 
+//Image Storage Engine using multer
+const storage = multer.diskStorage({
+  destination: "./upload/images",
+  filename: (req, file, cb) => {
+    return cb(
+      null,
+      `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
+    );
+  },
+});
+
+// Initialize multer with the storage configuration
+const upload = multer({ storage: storage });
+
+//Endpoint for accessing uploaded image
+app.use("/images", express.static("upload/images"));
+
+//Creating Endpoint for Upload Images
+app.post("/upload", upload.single("product"), (req, res) => {
+  res.json({
+    success: 1,
+    image_url: `http://localhost:${PORT}/images/${req.file.filename}`,
+  });
+});
+
+// Start the server
 app.listen(PORT, (error) => {
   if (!error) {
     console.log("Server running on Port: ", PORT);
