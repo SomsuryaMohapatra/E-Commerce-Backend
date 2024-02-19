@@ -4,21 +4,27 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
+require("dotenv").config();
+const connectToMongo = require("./db");
 
-const PORT = 4000;
+const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 //Database Connection with MongoDB
-const mongoConnectionURL =
-  "mongodb+srv://learndev:ecommerce_learndev@cluster0.gzedqtc.mongodb.net/e-commerce";
-mongoose.connect(mongoConnectionURL);
+// const mongoConnectionURL =
+//   "mongodb+srv://learndev:ecommerce_learndev@cluster0.gzedqtc.mongodb.net/e-commerce";
+// mongoose.connect(mongoConnectionURL);
+connectToMongo();
 
 //API creation
 app.get("/", (req, res) => {
   res.send("Express App is running");
 });
+
+//Product endpoints
+app.use("/api", require("./routes/product"));
 
 //Image Storage Engine using multer
 const storage = multer.diskStorage({
@@ -44,6 +50,8 @@ app.post("/upload", upload.single("product"), (req, res) => {
     image_url: `http://localhost:${PORT}/images/${req.file.filename}`,
   });
 });
+
+//
 
 // Start the server
 app.listen(PORT, (error) => {
