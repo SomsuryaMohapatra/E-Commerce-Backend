@@ -3,7 +3,7 @@ const Product = require("../Schema/Product/ProductSchema");
 
 const router = express.Router();
 
-//Add Product
+//POST Product
 router.post("/addproduct", async (req, res) => {
   try {
     let products = await Product.find({});
@@ -38,7 +38,7 @@ router.post("/addproduct", async (req, res) => {
   }
 });
 
-//Remove Product
+//DELETE Product
 router.delete("/removeproduct", async (req, res) => {
   try {
     await Product.findOneAndDelete({ id: req.body.id });
@@ -47,7 +47,33 @@ router.delete("/removeproduct", async (req, res) => {
       success: true,
       name: req.body.name,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log("Error", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+//GET Products
+router.get("/allproducts", async (req, res) => {
+  try {
+    let products = await Product.find({});
+    if (products.length > 0) {
+      console.log("All Products Fetched");
+      res.json({
+        success: true,
+        products: products,
+      });
+    } else {
+      console.log("No Product Available");
+      res.json({
+        success: false,
+        products: "No Products Available",
+      });
+    }
+  } catch (error) {
+    console.log("Error", error.message);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 module.exports = router;
