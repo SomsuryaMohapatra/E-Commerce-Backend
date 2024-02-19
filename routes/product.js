@@ -13,7 +13,7 @@ router.post("/addproduct", async (req, res) => {
       let lastProduct = lastProductArray[0];
       productId = lastProduct.id + 1;
     } else {
-      productId++;
+      productId = 1;
     }
     const product = new Product({
       id: productId,
@@ -39,6 +39,15 @@ router.post("/addproduct", async (req, res) => {
 });
 
 //Remove Product
-
+router.delete("/removeproduct", async (req, res) => {
+  try {
+    await Product.findOneAndDelete({ id: req.body.id });
+    console.log("Removed");
+    res.json({
+      success: true,
+      name: req.body.name,
+    });
+  } catch (error) {}
+});
 
 module.exports = router;
