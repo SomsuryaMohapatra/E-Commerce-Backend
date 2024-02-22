@@ -26,6 +26,9 @@ app.get("/", (req, res) => {
 //Product endpoints
 app.use("/api", require("./routes/product"));
 
+//User Endpoints
+app.use("/api", require("./routes/user"));
+
 //Image Storage Engine using multer
 const storage = multer.diskStorage({
   destination: "./upload/images",
