@@ -13,7 +13,7 @@ router.post("/signup", async (req, res) => {
   if (checkUserEmail) {
     return res
       .status(400)
-      .json({ success: false, error: "User with email already exsist" });
+      .json({ success: false, error: "User with this email already exsist" });
   } else {
     //creating cart object
     let cart = {};
