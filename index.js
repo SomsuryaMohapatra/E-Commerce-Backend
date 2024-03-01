@@ -26,6 +26,9 @@ app.get("/", (req, res) => {
 //Product endpoints
 app.use("/api", require("./routes/product"));
 
+//New Collections endpoints
+app.use("/api", require("./routes/newCollections"));
+
 //User Endpoints
 app.use("/api", require("./routes/user"));
 

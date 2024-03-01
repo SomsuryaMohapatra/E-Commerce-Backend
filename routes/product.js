@@ -58,13 +58,13 @@ router.get("/allproducts", async (req, res) => {
   try {
     let products = await Product.find({});
     if (products.length > 0) {
-      console.log("All Products Fetched");
+      // console.log("All Products Fetched");
       res.json({
         success: true,
         products: products,
       });
     } else {
-      console.log("No Product Available");
+      // console.log("No Product Available");
       res.json({
         success: false,
         products: "No Products Available",
