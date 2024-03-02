@@ -76,4 +76,20 @@ router.get("/allproducts", async (req, res) => {
   }
 });
 
+//GET Popular in Women
+router.get("/popularinwomen", async (req, res) => {
+  try {
+    let products = await Product.find({ category: "women" });
+    if (products) {
+      let popularInWomen = products.slice(-4);
+      if (popularInWomen) {
+        res.json({
+          status: true,
+          popular_in_women: popularInWomen,
+        });
+      }
+    }
+  } catch (error) {}
+});
+
 module.exports = router;
