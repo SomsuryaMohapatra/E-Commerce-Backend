@@ -1,5 +1,6 @@
 const express = require("express");
 const Product = require("../Schema/Product/ProductSchema");
+const NewCollections = require("../Schema/NewCollections/NewCollectionsSchema");
 
 const router = express.Router();
 
@@ -7,14 +8,34 @@ const router = express.Router();
 router.post("/addproduct", async (req, res) => {
   try {
     let products = await Product.find({});
-    let productId;
+    let newCollectionProducts = await NewCollections.find({});
+    let productId, lastProductId, lastNewCollectionProductId;
     if (products.length > 0) {
       let lastProductArray = products.slice(-1);
       let lastProduct = lastProductArray[0];
-      productId = lastProduct.id + 1;
-    } else {
+      lastProductId = lastProduct.id;
+    }
+    if (products.length <= 0) {
+      lastProductId = 0;
+    }
+    if (newCollectionProducts.length > 0) {
+      let lastNewCollectionProductArray = newCollectionProducts.slice(-1);
+      let lastNewCollectionProduct = lastNewCollectionProductArray[0];
+      lastNewCollectionProductId = lastNewCollectionProduct.id;
+    }
+    if (newCollectionProducts.length <= 0) {
+      lastNewCollectionProductId = 0;
+    }
+    if (lastProductId > lastNewCollectionProductId) {
+      productId = lastProductId + 1;
+    }
+    if (lastProductId < lastNewCollectionProductId) {
+      productId = lastNewCollectionProductId + 1;
+    }
+    if (newCollectionProducts.length === 0 && products.length === 0) {
       productId = 1;
     }
+    console.log("Product Id: ", productId);
     const product = new Product({
       id: productId,
       name: req.body.name,
@@ -23,14 +44,14 @@ router.post("/addproduct", async (req, res) => {
       new_price: req.body.new_price,
       old_price: req.body.old_price,
     });
-    // console.log(product);
+    console.log(product);
 
     await product.save();
 
     // console.log("Product Saved");
     res.json({
       success: true,
-      name: req.body.name,
+      product: product,
     });
   } catch (error) {
     console.log("Error", error.message);

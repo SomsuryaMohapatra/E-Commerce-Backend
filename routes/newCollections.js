@@ -7,18 +7,35 @@ const router = express.Router();
 //endpoint for adding new collections product
 router.post("/addnewcollections", async (req, res) => {
   try {
+    let products = await Product.find({});
     let newCollectionProducts = await NewCollections.find({});
-    let newCollectionProductId;
+    let productId, lastProductId, lastNewCollectionProductId;
+    if (products.length > 0) {
+      let lastProductArray = products.slice(-1);
+      let lastProduct = lastProductArray[0];
+      lastProductId = lastProduct.id;
+    }
+    if (products.length === 0) {
+      lastProductId = 0;
+    }
     if (newCollectionProducts.length > 0) {
       let lastNewCollectionProductArray = newCollectionProducts.slice(-1);
       let lastNewCollectionProduct = lastNewCollectionProductArray[0];
-      newCollectionProductId = lastNewCollectionProduct.id + 1;
+      lastNewCollectionProductId = lastNewCollectionProduct.id;
+    }
+    if (newCollectionProducts.length === 0) {
+      lastNewCollectionProductId = 0;
+    }
+    if (lastProductId > lastNewCollectionProductId) {
+      productId = lastProductId + 1;
+    } else if (lastProductId < lastNewCollectionProductId) {
+      productId = lastNewCollectionProductId + 1;
     } else {
-      newCollectionProductId = 1;
+      productId = 1;
     }
 
-    const newProduct = NewCollections({
-      id: newCollectionProductId,
+    const newProduct = new NewCollections({
+      id: productId,
       name: req.body.name,
       image: req.body.image,
       category: req.body.category,
@@ -67,9 +84,27 @@ router.delete("/removenewcollection", async (req, res) => {
     if (result) {
       if (new_product) {
         let products = await Product.find({});
-        let lastProductArray = products.slice(-1);
-        let lastProduct = lastProductArray[0];
-        let productId = lastProduct.id + 1;
+        let newCollectionProducts = await NewCollections.find({});
+        let productId, lastProductId, lastNewCollectionProductId;
+        if (products.length > 0) {
+          let lastProductArray = products.slice(-1);
+          let lastProduct = lastProductArray[0];
+          lastProductId = lastProduct.id;
+        }
+        if (products.length === 0) {
+          lastProductId = 0;
+        }
+        if (newCollectionProducts.length > 0) {
+          let lastNewCollectionProductArray = newCollectionProducts.slice(-1);
+          let lastNewCollectionProduct = lastNewCollectionProductArray[0];
+          lastNewCollectionProductId = lastNewCollectionProduct.id;
+        }
+        if (lastProductId > lastNewCollectionProductId) {
+          productId = lastProductId + 1;
+        } else if (lastProductId < lastNewCollectionProductId) {
+          productId = lastNewCollectionProductId + 1;
+        }
+
         let product = new Product({
           id: productId,
           name: new_product.name,
