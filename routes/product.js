@@ -1,6 +1,9 @@
 const express = require("express");
 const Product = require("../Schema/Product/ProductSchema");
 const NewCollections = require("../Schema/NewCollections/NewCollectionsSchema");
+const Users = require("../Schema/User/UserSchema");
+const jwt = require("jsonwebtoken");
+require("dotenv").config;
 
 const router = express.Router();
 
@@ -110,6 +113,73 @@ router.get("/popularinwomen", async (req, res) => {
         });
       }
     }
+  } catch (error) {}
+});
+
+//Middleware for fetching logged in user
+const fetchUser = async (req, res, next) => {
+  try {
+    const token = req.header("token");
+    if (!token) {
+      res.status(401).send({ error: "Something Went Wrong" });
+    } else {
+      try {
+        const data = jwt.verify(token, process.env.JWT_SALT);
+        req.user = data.user;
+        next();
+      } catch (error) {
+        console.log("Error: ", error.message);
+        res
+          .status(401)
+          .send({ error: "Something went wrong with verification" });
+      }
+    }
+  } catch (error) {
+    console.log("error: ", error.message);
+    res.status(500).send({ error: "Internal Server Error" });
+  }
+};
+
+//Adding product to user cartdata
+router.post("/addtocart", fetchUser, async (req, res) => {
+  try {
+    // console.log("Body: ", req.body, " user: ", req.user);
+    let userData = await Users.findOne({ _id: req.user.id });
+    userData.cartData[req.body.itemId] += 1;
+    await Users.findOneAndUpdate(
+      { _id: req.user.id },
+      { cartData: userData.cartData }
+    );
+
+    res.send("Cart Item Added");
+  } catch (error) {
+    console.log("Error: ", error.message);
+    res.status(500).send({ error: "Internal Server Error" });
+  }
+});
+
+//Fetching cartdata of a logged in user
+router.post('/getcart',fetchUser,async(req,res)=>{
+  try {
+    let userData=await Users.findOne({_id : req.user.id});
+    res.json(userData.cartData);
+  } catch (error) {
+    
+  }
+})
+
+//Removing product from user cart data
+router.post("/removefromcart", fetchUser, async (req, res) => {
+  try {
+    let userData = await Users.findOne({ _id: req.user.id });
+    if (userData.cartData[req.body.itemId] > 0) {
+      userData.cartData[req.body.itemId] -= 1;
+    }
+    await Users.findOneAndUpdate(
+      { _id: req.user.id },
+      { cartData: userData.cartData }
+    );
+    res.send("Item removed from cart");
   } catch (error) {}
 });
 
